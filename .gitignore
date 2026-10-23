@@ -1,0 +1,18 @@
+# never commit: logs, golden scratch runs, weights, data, caches, third-party checkouts
+logs/
+results/_golden_*/
+results/**/*.png
+results/**/*.ply
+results/**/*.npz
+results/**/*.npy
+results/**/*.csv
+!results/TABLE_*.csv
+ckpt/
+third_party/
+repos/
+*.pth
+*.pt
+*.safetensors
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
