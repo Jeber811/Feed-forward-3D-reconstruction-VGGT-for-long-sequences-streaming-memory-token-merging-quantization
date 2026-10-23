@@ -12,7 +12,9 @@ This is a two-person course project (CAP 6411, UCF, Fall 2026, Topic 26: long-se
 3. **Do not edit `protocol/protocol.env`, `protocol/THIRD_PARTY.lock`, `protocol/golden/` or the shared metric/memory
    code paths in `tools/eval_scannet_any.py` without both people agreeing.** Such a change bumps `PROTOCOL_VERSION`,
    adds a changelog line in `PROTOCOL.md`, and goes through a pull request. New models/variants may be added freely
-   (new `--model` branch + `ckpt_for`/`cpu_inputs_ok` entries) as long as existing ones are unchanged.
+   (new `--model` branch + `ckpt_for`/`cpu_inputs_ok` entries) as long as existing ones are unchanged. A new
+   **bounded** model must keep its inputs in host RAM (`CAP_CPU_INPUTS=1`, listed in `CPU_INPUT_MODELS`) so its
+   peak memory is comparable.
 4. **Commit your code before a final run.** Runs from uncommitted `tools/` or `protocol/` changes are marked `-dirty`
    and rejected by `tools/validate_results.py`.
 5. **CRCV cluster rules** (admin: Steven Dick): no Python or heavy work on the login node — use `sbatch`, or
@@ -30,6 +32,9 @@ This is a two-person course project (CAP 6411, UCF, Fall 2026, Topic 26: long-se
    Use a run `NAME` that is unique and descriptive (e.g. `pi3_chunk200_K`, `stream_cap1g_KMQ`), so two people never
    write the same folder.
 4. After merge, rebuild the combined table: `srun ... python tools/make_results_table.py --tier rtx6000`.
+5. Drift: `srun -p normal -c 2 --mem=8G -t 00:10:00 python tools/drift_analysis.py results/rtx6000/<name>` (uses the
+   saved `trajectory.npz`; commit the `drift_*.json` it writes). Timing claims: separate runs with
+   `CAP_TIMING_REPEATS=3` in `EXTRA_ENV`, NAME ending in `_timing` (see PROTOCOL.md §5).
 
 ## Layout
 `protocol/` settings, run script, golden check, lock file · `tools/` harness + checks + table · `patches/` local
