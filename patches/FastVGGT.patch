@@ -1,0 +1,49 @@
+diff --git a/vggt/utils/eval_utils.py b/vggt/utils/eval_utils.py
+index 9ff968e..e9d4262 100644
+--- a/vggt/utils/eval_utils.py
++++ b/vggt/utils/eval_utils.py
+@@ -198,7 +198,7 @@ def eval_trajectory(poses_est, poses_gt, frame_ids, align=False):
+         pose_relation=PoseRelation.translation_part,
+         align=align,
+         correct_scale=align,
+-        align_origin=True,
++        align_origin=not align,  # evo>=1.31 rejects align+align_origin; <=1.30 ignored align_origin when align=True
+     )
+     ate = ate_result.stats["rmse"]
+ 
+@@ -264,7 +264,7 @@ def eval_trajectory(poses_est, poses_gt, frame_ids, align=False):
+         pose_relation=PoseRelation.rotation_angle_deg,
+         align=align,
+         correct_scale=align,
+-        align_origin=True,
++        align_origin=not align,  # evo>=1.31 rejects align+align_origin; <=1.30 ignored align_origin when align=True
+     )
+     are = are_result.stats["rmse"]
+ 
+@@ -280,7 +280,7 @@ def eval_trajectory(poses_est, poses_gt, frame_ids, align=False):
+         delta_unit=Unit.frames,
+         rel_delta_tol=0.01,
+         all_pairs=True,
+-        align_origin=True,
++        align_origin=not align,  # evo>=1.31 rejects align+align_origin; <=1.30 ignored align_origin when align=True
+     )
+     rpe_rot = rpe_rots_result.stats["rmse"]
+ 
+@@ -296,7 +296,7 @@ def eval_trajectory(poses_est, poses_gt, frame_ids, align=False):
+         delta_unit=Unit.frames,
+         rel_delta_tol=0.01,
+         all_pairs=True,
+-        align_origin=True,
++        align_origin=not align,  # evo>=1.31 rejects align+align_origin; <=1.30 ignored align_origin when align=True
+     )
+     rpe_trans = rpe_transs_result.stats["rmse"]
+ 
+@@ -658,7 +658,7 @@ def infer_vggt_and_reconstruct(
+     torch.cuda.synchronize()
+     start = time.time()
+     with torch.cuda.amp.autocast(dtype=dtype):
+-        vgg_input_cuda = vgg_input.cuda().to(torch.bfloat16)
++        vgg_input_cuda = vgg_input.cuda().to(dtype)
+         predictions = model(vgg_input_cuda, image_paths=image_paths)
+     torch.cuda.synchronize()
+     end = time.time()
