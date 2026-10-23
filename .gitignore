@@ -16,3 +16,4 @@ repos/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+!results/**/trajectory.npz

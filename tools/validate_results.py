@@ -15,7 +15,9 @@ REPO = Path(__file__).resolve().parents[1]
 ENV = (REPO / "protocol" / "protocol.env").read_text()
 VERSION = re.search(r"^PROTOCOL_VERSION=(\S+)", ENV, re.M).group(1)
 CPU_INPUT_MODELS = set(re.search(r"cpu_inputs_ok\(\) \{ case \$1 in ([^)]+)\)", ENV).group(1).split("|"))
-FINAL_TIERS = {"rtx6000": "Quadro RTX 6000"}
+# tiers whose runs may enter report tables -> required GPU. rtx6000 = main 24 GB results; a100_ref = unbounded
+# controls that run out of memory on 24 GB (labelled "reference" in the report).
+FINAL_TIERS = {"rtx6000": "Quadro RTX 6000", "a100_ref": "A100"}
 
 
 def check_run(run_dir: Path):

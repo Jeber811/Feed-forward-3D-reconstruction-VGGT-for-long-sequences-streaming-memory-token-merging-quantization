@@ -3,7 +3,7 @@
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=48G
-#SBATCH --time=01:00:00
+#SBATCH --time=01:30:00
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
 # Golden check: proves your setup reproduces the reference numbers. Run once per person and after ANY setup change,
@@ -17,7 +17,9 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 verify_third_party || { echo "GOLDEN FAILED: third-party code differs from protocol/THIRD_PARTY.lock"; exit 2; }
 G=$REPO/results/_golden_${USER}_$SLURM_JOB_ID; mkdir -p $G
 GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1); echo "golden | $(hostname) | $GPU | $(date)"
-for cfg in "pi3 X=0" "pi3_chunk CH_SIZE=25 CH_OVERLAP=5 CH_KF=3"; do
+# one config per code path both of us depend on: pi3 (all-at-once), pi3_chunk (chunked, CPU inputs),
+# vggt_star (FastVGGT VGGT* path), streamvggt (StreamVGGT path), ttt3r_offload (recurrent, CPU inputs)
+for cfg in "pi3 X=0" "pi3_chunk CH_SIZE=25 CH_OVERLAP=5 CH_KF=3" "vggt_star X=0" "streamvggt X=0" "ttt3r_offload X=0"; do
   set -- $cfg; m=$1; shift
   cpu_inputs_ok $m && export CAP_CPU_INPUTS=1 || export CAP_CPU_INPUTS=0
   env "$@" python $HARNESS --model $m --ckpt_path $(ckpt_for $m) --data_dir $DATA --gt_ply_dir $GT_PLY_DIR \

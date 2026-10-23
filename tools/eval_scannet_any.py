@@ -349,12 +349,12 @@ class CUT3RWrapper(torch.nn.Module, _NoPatchMixin):
         state history is kept, so GPU memory is bounded by the recurrent state, not by S."""
         m = self.model
         assert m.pose_head_flag
-        dev = images.device
+        dev = torch.device("cuda")  # inputs may be in host RAM (CAP_CPU_INPUTS=1): moved one frame at a time
         shape = torch.tensor([[h, w]], device=dev)
         preds = []
         with torch.autocast("cuda", enabled=False):
             for i in range(images.shape[0]):
-                xi = F.interpolate(images[i : i + 1].float(), size=(h, w), mode="bilinear", align_corners=False) * 2 - 1
+                xi = F.interpolate(images[i : i + 1].to(dev).float(), size=(h, w), mode="bilinear", align_corners=False) * 2 - 1
                 img_out, pos_i, _ = m._encode_image(xi, shape)
                 feat_i = img_out[-1]
                 if i == 0:
@@ -540,6 +540,10 @@ def recon_metrics(c2w_est, c2w_gt, pts, gt_pts, n_sample=200_000, seed=33):
     return {k: float(v) for k, v in out.items()}
 
 
+# Models whose wrappers move their own frames to the GPU (inputs may stay in host RAM, CAP_CPU_INPUTS=1).
+CPU_INPUT_MODELS = ("pi3_chunk", "vggt_chunk", "fastvggt_chunk", "pi3_kfinterp", "cut3r_offload", "ttt3r_offload")
+
+
 def infer_cpu_inputs(model, vgg_input, dtype, depth_conf_thresh):
     """Same as FastVGGT's infer_vggt_and_reconstruct, but the input frames stay in host RAM (CAP_CPU_INPUTS=1).
     The FastVGGT protocol stages every frame on the GPU (~3.4 MB/frame measured), which
@@ -656,20 +660,32 @@ def main():
             del images  # full-res frames are not needed after preprocessing (frees ~3.8 MB/frame of host RAM)
             model.update_patch_dimensions(pw, ph)
             torch.cuda.empty_cache()
-            torch.cuda.reset_peak_memory_stats()
-            if os.environ.get("CAP_CPU_INPUTS") == "1":
-                assert args.model in ("pi3_chunk", "vggt_chunk", "fastvggt_chunk", "pi3_kfinterp"), args.model
+            cpu_in = os.environ.get("CAP_CPU_INPUTS") == "1"
+            if cpu_in:
+                assert args.model in CPU_INPUT_MODELS, args.model
                 mem["inputs_on"] = "cpu"
-                _, _, pts, _, cams, t_ms = infer_cpu_inputs(model, vgg_input, dtype, args.depth_conf_thresh)
-            else:
-                _, _, pts, _, cams, t_ms = infer_vggt_and_reconstruct(
-                    model, vgg_input, dtype, args.depth_conf_thresh, image_paths
-                )
+
+            def infer(x, paths):
+                if cpu_in:
+                    return infer_cpu_inputs(model, x, dtype, args.depth_conf_thresh)
+                return infer_vggt_and_reconstruct(model, x, dtype, args.depth_conf_thresh, paths)
+
+            # protocol v0.2: one small warm-up pass (CUDA kernels/allocator), excluded from time and peak memory
+            infer(vgg_input[:4], image_paths[:4])
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            # CAP_TIMING_REPEATS=R (timing runs only): repeat the identical forward R times, report the median
+            times = []
+            for _ in range(max(1, int(os.environ.get("CAP_TIMING_REPEATS", "1")))):
+                _, _, pts, _, cams, t_ms = infer(vgg_input, image_paths)
+                times.append(t_ms)
+            t_ms = float(np.median(times))
             mem.update({
                 "status": "ok",
                 "peak_allocated_gb": round(torch.cuda.max_memory_allocated() / 2**30, 3),
                 "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 2**30, 3),
                 "inference_time_ms": round(t_ms, 1),
+                "inference_time_ms_all": [round(t, 1) for t in times],
                 "fps": round(len(image_paths) / (t_ms / 1000), 3),
             })
             if getattr(model, "diag", None):
@@ -701,6 +717,10 @@ def main():
                 # camera-to-world poses, Sim(3)-Umeyama aligned (same evo code path, same alignment).
                 n = min(len(cams), len(c2ws))
                 c2w_est = np.linalg.inv(np.asarray(cams)[:n])
+                # protocol v0.2: keep the predicted trajectory for drift analysis (tools/drift_analysis.py).
+                # Predictions only (model frame) - GT poses are ScanNet data and are re-read on the cluster.
+                np.savez_compressed(out_dir / "trajectory.npz", c2w_est=c2w_est.astype(np.float32),
+                                    frame_ids=np.asarray(frame_ids[:n]))
                 cc, _, _ = eval_trajectory(c2w_est, c2ws[:n], frame_ids[:n], align=True)
                 metrics.update({f"{k}_cc": float(v) for k, v in cc.items()})
                 met_file = out_dir / "metrics.json"
