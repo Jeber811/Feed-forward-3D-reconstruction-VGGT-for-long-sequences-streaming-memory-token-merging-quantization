@@ -1,0 +1,16 @@
+{
+  "scene": "scene0000_00",
+  "model": "streamvggt",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 70,
+  "model_weights_gb": 4.686,
+  "status": "ok",
+  "peak_allocated_gb": 15.011,
+  "peak_reserved_gb": 23.203,
+  "inference_time_ms": 32610.7,
+  "inference_time_ms_all": [
+    32610.7
+  ],
+  "fps": 2.147
+}

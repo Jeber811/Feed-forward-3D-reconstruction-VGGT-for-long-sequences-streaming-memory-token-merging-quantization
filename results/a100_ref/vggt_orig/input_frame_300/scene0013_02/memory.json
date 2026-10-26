@@ -1,0 +1,16 @@
+{
+  "scene": "scene0013_02",
+  "model": "vggt_orig",
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "dtype": "torch.float16",
+  "num_frames": 300,
+  "model_weights_gb": 4.686,
+  "status": "ok",
+  "peak_allocated_gb": 26.622,
+  "peak_reserved_gb": 31.879,
+  "inference_time_ms": 67610.4,
+  "inference_time_ms_all": [
+    67610.4
+  ],
+  "fps": 4.437
+}

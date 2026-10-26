@@ -1,0 +1,16 @@
+{
+  "scene": "scene0000_00",
+  "model": "cut3r",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 300,
+  "model_weights_gb": 2.968,
+  "status": "ok",
+  "peak_allocated_gb": 9.521,
+  "peak_reserved_gb": 10.35,
+  "inference_time_ms": 61483.0,
+  "inference_time_ms_all": [
+    61483.0
+  ],
+  "fps": 4.879
+}

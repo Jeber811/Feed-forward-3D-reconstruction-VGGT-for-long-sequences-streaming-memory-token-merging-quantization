@@ -1,0 +1,16 @@
+{
+  "scene": "scene0013_02",
+  "model": "spann3r",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 500,
+  "model_weights_gb": 2.461,
+  "status": "ok",
+  "peak_allocated_gb": 5.309,
+  "peak_reserved_gb": 6.434,
+  "inference_time_ms": 82908.8,
+  "inference_time_ms_all": [
+    82908.8
+  ],
+  "fps": 6.031
+}

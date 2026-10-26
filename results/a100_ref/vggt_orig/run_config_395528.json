@@ -1,0 +1,5 @@
+{"protocol": "0.2", "git_commit": "149ab5f", "user": "ja396977",
+ "job": "395528", "host": "c4-5", "gpu": "NVIDIA A100 80GB PCIe, 81920 MiB", "conda_env": "/home/ja396977/.conda/envs/cap6411_env", "tier": "a100_ref",
+ "model": "vggt_orig", "name": "vggt_orig", "lengths": "300 500 1000", "scenes": "scene0000_00 scene0013_02", "extra_env": "",
+ "harness_args": "", "CAP_DTYPE": "float16", "CAP_CPU_INPUTS": "0",
+ "CH_MEMORDER": "recent_first", "CH_ALIGN": "svd", "date": "2026-10-26T00:42:21-04:00"}
