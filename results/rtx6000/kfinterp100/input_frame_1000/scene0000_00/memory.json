@@ -1,0 +1,17 @@
+{
+  "scene": "scene0000_00",
+  "model": "pi3_kfinterp",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 1000,
+  "model_weights_gb": 3.572,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 9.382,
+  "peak_reserved_gb": 11.371,
+  "inference_time_ms": 29117.3,
+  "inference_time_ms_all": [
+    29117.3
+  ],
+  "fps": 34.344
+}

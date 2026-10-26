@@ -1,0 +1,5 @@
+{"protocol": "0.2", "git_commit": "149ab5f", "user": "ja396977",
+ "job": "395539", "host": "c3-7", "gpu": "Quadro RTX 6000, 24576 MiB", "conda_env": "/home/ja396977/.conda/envs/cap6411_env", "tier": "rtx6000",
+ "model": "spann3r", "name": "spann3r", "lengths": "300 500 1000 2000", "scenes": "scene0000_00 scene0013_02", "extra_env": "",
+ "harness_args": "", "CAP_DTYPE": "float16", "CAP_CPU_INPUTS": "0",
+ "CH_MEMORDER": "recent_first", "CH_ALIGN": "svd", "date": "2026-10-25T08:53:04-04:00"}

@@ -1,0 +1,17 @@
+{
+  "scene": "scene0000_00",
+  "model": "ttt3r_offload",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 2000,
+  "model_weights_gb": 2.968,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 6.003,
+  "peak_reserved_gb": 8.9,
+  "inference_time_ms": 431225.8,
+  "inference_time_ms_all": [
+    431225.8
+  ],
+  "fps": 4.638
+}
