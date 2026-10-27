@@ -19,8 +19,9 @@ sbatch --qos=short --requeue $GPU_FINAL \
 ```
 
 ## Methods in the harness (`tools/eval_scannet_any.py --model ...`)
-Controls: `vggt_orig`, `pi3`, `vggt_star`, `fastvggt`, `streamvggt`, `cut3r`, `ttt3r_offload`, `spann3r`,
-`pi3_kfinterp` (simple baseline). Bases: `pi3_chunk`, `vggt_chunk`, `fastvggt_chunk` (chunked, Sim(3)-stitched,
+Controls: `vggt_orig`, `pi3`, `vggt_star`, `fastvggt`, `streamvggt`, `pi3_kfinterp` (simple baseline); recurrent
+family `ttt3r_offload` (main) + `cut3r_offload` (original CUT3R; `cut3r` = official loop, reference only). `spann3r`
+remains in the harness but is dropped from experiments. Bases: `pi3_chunk`, `vggt_chunk`, `fastvggt_chunk` (chunked, Sim(3)-stitched,
 keyframe memory via `CH_*` env vars); streaming capped-cache variants to be added.
 
 Third-party code (VGGT, FastVGGT, π³, CUT3R, TTT3R, Spann3R, StreamVGGT, …) is used under each project's license at the

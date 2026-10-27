@@ -60,8 +60,11 @@ CUT3R/TTT3R, Spann3R; fp16 weights for VGGT*/FastVGGT (FastVGGT recipe). Quantiz
   (git commit, command, env vars, host, GPU, job id).
 
 ## 6. Methods (names used in tables)
-Controls: vggt_orig, pi3, vggt_star, streamvggt, fastvggt, quantvggt (accuracy only), ttt3r_offload, cut3r, spann3r,
-pi3_kfinterp (simple baseline, N keyframes per budget).
+Controls: vggt_orig, pi3, vggt_star, streamvggt, fastvggt, quantvggt (accuracy only), pi3_kfinterp (simple baseline,
+N keyframes per budget). Recurrent family: **ttt3r_offload** (main recurrent comparison) and **cut3r_offload** (original
+CUT3R, same per-frame loop and input handling as TTT3R, so the pair isolates TTT3R's state update), both at
+300/500/1000/2000 frames. `cut3r` (official loop) stays as a reference row. Spann3R is dropped (Oct 27, agreed by
+both): TTT3R beats it at the same constant memory; its existing rtx6000 rows are appendix-only.
 Bases: pi3_chunk (B1), vggt_chunk (B2), stream_capped (B3, Zilzil's compact — TODO: add as a harness model).
 Technique grid on each base: {none, K, M, Q, K+M, K+Q, M+Q, K+M+Q}.
 
@@ -70,6 +73,8 @@ Technique grid on each base: {none, K, M, Q, K+M, K+Q, M+Q, K+M+Q}.
 - [ ] Zilzil — date: (v0.2)
 
 ## Changelog
+- v0.2 plan note (Oct 27, no settings change): Spann3R dropped from new experiments; recurrent family = TTT3R (main) +
+  CUT3R (cut3r_offload) at matching lengths.
 - v0.2 (Oct 23): 4-frame warm-up excluded from time/memory; CAP_TIMING_REPEATS timing runs (median); trajectory.npz +
   tools/drift_analysis.py; CPU-resident inputs for cut3r_offload/ttt3r_offload and required for new bounded models;
   a100_ref tier for unbounded references; golden check now covers pi3, pi3_chunk, vggt_star, streamvggt, ttt3r_offload;

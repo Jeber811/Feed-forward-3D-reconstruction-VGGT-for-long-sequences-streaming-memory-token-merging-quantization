@@ -32,7 +32,7 @@ sub "$GPU_FINAL" rtx6000 fastvggt      fastvggt      "300"
 sub "$GPU_FINAL" rtx6000 streamvggt    streamvggt    "70"
 sub "$GPU_FINAL" rtx6000 ttt3r_offload ttt3r_offload "300 500 1000 2000"
 sub "$GPU_FINAL" rtx6000 cut3r         cut3r         "300 500"
-sub "$GPU_FINAL" rtx6000 spann3r       spann3r       "300 500 1000 2000"
+sub "$GPU_FINAL" rtx6000 cut3r_offload cut3r_offload "300 500 1000 2000"  # Oct 27: replaces spann3r (dropped)
 sub "$GPU_FINAL" rtx6000 pi3_kfinterp  kfinterp300   "1000 2000" "PI3_KFN=300"
 sub "$GPU_FINAL" rtx6000 pi3_kfinterp  kfinterp100   "1000 2000" "PI3_KFN=100"
 sub "$GPU_FINAL" rtx6000 pi3_kfinterp  kfinterp50    "1000 2000" "PI3_KFN=50"
