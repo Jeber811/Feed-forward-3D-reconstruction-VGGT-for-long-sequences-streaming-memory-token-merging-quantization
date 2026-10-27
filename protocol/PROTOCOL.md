@@ -24,18 +24,18 @@ Third-party code is the shared copy pinned in `THIRD_PARTY.lock` (verified at th
 | Scenes | ScanNet v2 from `/squash/scannetv2` via the extracted frames in `/home/zhyw86/WorkSpace/cap6411/dataset/scannet/process_scannet`; dev set = scene0111_00, scene0188_00; final candidate = the 50 scenes and usable-frame counts in `protocol/scene_sets/scannet50_v03.csv` (49 pinned FastVGGT ScanNet-50 IDs plus scene0010_00 in place of scene0150_00, which has only 430 usable frames) |
 | Frame selection | FastVGGT `build_frame_selection` (first frame + uniform integer stride over valid-pose frames, capped at N) |
 | Lengths N | 300, 500, 1000, 2000 (+ full scan for scene0000_00 = 5578). The committed fixed-N files contain 50, 50, 40, and 13 eligible scenes respectively; include only scenes with at least N distinct usable frames in each fixed-N aggregate. Never silently cap a scene in a fixed-N aggregate. Record actual selected-frame count per result and report cohort size beside every aggregate. |
-| Input | FastVGGT `get_vgg_input_imgs` → 518×392, values in [0,1]. The active CUT3R adapter uses 512×384; outputs are resized back to 518×392. |
+| Input | FastVGGT `get_vgg_input_imgs` → 518×392, values in [0,1]. The CUT3R/TTT3R adapter uses 512×384; outputs are resized back to 518×392. |
 
 ## 3. Precision
 fp16 autocast on Turing (no bf16). Weights as each model's official recipe: fp32 + autocast for VGGT(official), π³,
-CUT3R; fp16 weights for VGGT*/FastVGGT (FastVGGT recipe). Quantized variants state their storage dtype.
+CUT3R/TTT3R; fp16 weights for VGGT*/FastVGGT (FastVGGT recipe). Quantized variants state their storage dtype.
 
 ## 4. Memory (the budget axis)
 - Metric: **total peak GPU memory allocated** = `torch.cuda.max_memory_allocated()` after `reset_peak_memory_stats()`
   right before inference, **including weights**. Also record `max_memory_reserved` (fragmentation) — never nvidia-smi.
 - Inputs: kept in host RAM (`CAP_CPU_INPUTS=1`) for every method that does not need all frames on the GPU at once
   (chunked, streaming, recurrent, keyframe-interp). All-at-once models (VGGT, π³, FastVGGT, StreamVGGT-full) take
-  their inputs on the GPU because they must. The optional `cut3r_offload` path loads frames one at a time from host RAM.
+  their inputs on the GPU because they must. `cut3r_offload` / `ttt3r_offload` load frames one at a time from host RAM.
   The official-loop controls `cut3r` and `streamvggt` keep their official input handling (inputs staged on GPU,
   ~3.4 MB/frame) and are labelled so. **Every NEW bounded model (e.g. the streaming capped-cache base) must support
   `CAP_CPU_INPUTS=1`** (move its own frames to the GPU) and be added to `CPU_INPUT_MODELS` + `cpu_inputs_ok`.
@@ -60,12 +60,28 @@ CUT3R; fp16 weights for VGGT*/FastVGGT (FastVGGT recipe). Quantized variants sta
   (git commit, command, env vars, host, GPU, job id).
 
 ## 6. Methods (names used in tables)
-Controls: vggt_orig, pi3, vggt_star, streamvggt, fastvggt, quantvggt (accuracy only), cut3r,
-pi3_kfinterp (simple baseline, N keyframes per budget).
+Controls: vggt_orig, pi3, vggt_star, streamvggt, fastvggt, quantvggt (accuracy only), pi3_kfinterp (simple baseline,
+N keyframes per budget). Recurrent family: **ttt3r_offload** (main recurrent comparison) and **cut3r_offload** (original
+CUT3R, same per-frame loop and input handling as TTT3R, so the pair isolates TTT3R's state update). `cut3r` (official
+loop) is a reference row only. At matched settings on the v0.2 dev scenes, N=2000: TTT3R ATE-cc 0.67 vs CUT3R 1.59 at
+~5 GB, so TTT3R stays active.
 Bases: pi3_chunk (B1), vggt_chunk (B2), stream_capped (B3, Zilzil's compact — TODO: add as a harness model).
 Technique grid on each base: {none, K, M, Q, K+M, K+Q, M+Q, K+M+Q}.
 
-Spann3R and TTT3R are excluded from the v0.3 active study and final-run matrix. Their earlier logs remain historical provenance; existing harness/checkpoint support and the legacy TTT3R golden configuration are retained to avoid changing unrelated code paths. The golden check is a setup control, not a final study result.
+Spann3R is excluded from the v0.3 active study and final-run matrix (TTT3R beats it at the same constant memory). Its
+earlier results remain historical provenance (appendix only); harness/checkpoint support is retained. The golden check
+is a setup control, not a final study result.
+
+### Run plan (compute)
+The full matrix on all cohorts (~10 GPU-h per configuration on the RTX 6000) does not fit before the deadline, so:
+- **Tier A, full fixed-N cohorts** (`FINAL_SCENES_<N>`): controls at every N they fit in 24 GB, and the best
+  configuration of each base at each budget (6/10/16 GB). These are the headline tables.
+- **Tier B, technique grid** (all 8 K/M/Q combinations per base and budget): `GRID_SCENES_500`
+  (`scene_sets/scannet50_v03_grid10_N500.txt`, the first 10 IDs of the cohort) at N=500. Grid means are reported over
+  these 10 scenes only and never mixed with Tier A means.
+- Knob tuning (chunk size, #keyframes, budget_mb, merge ratio) only on the dev scenes `scene0111_00 scene0188_00`;
+  configurations picked on the v0.2 dev scenes (scene0000_00, scene0013_02 — now test scenes) are re-checked there.
+- Drift vs length: compare N only on the same scenes (the 13-scene N=2000 cohort run at every N).
 
 ### Fixed-N final cohort submission
 Use the matching committed scene file for each `NS` value; submit one N per job so the `SCENES` and `NS` match. For example, after sourcing `protocol/protocol.env`, set `SCENES="$FINAL_SCENES_500"` and `NS=500` in `--export` for a 500-frame job. `protocol/scene_sets/scannet50_v03.csv` records all 50 scene IDs and finite-pose usable counts. The preflight counted nonempty RGB/depth payloads and finite camera poses from raw `.sens`; every selected scene has at least 586 usable frames (maximum 5578). The 47 newly required extracts completed in Slurm array 397363 with validated `.complete` markers. Report fixed-N means only over the eligible file for that N, with its cohort count. Do not pool N=500 and N=2000 cohorts as if they share all 50 scenes.
@@ -75,7 +91,10 @@ Use the matching committed scene file for each `NS` value; submit one N per job 
 - [ ] Zilzil — date: (v0.3)
 
 ## Changelog
-- v0.3 proposal (Oct 28): 50-scene final cohort with scene0150_00 (430 usable frames) replaced by scene0010_00; disjoint development set; committed per-N eligibility files and cohort aggregation rule; Spann3R and TTT3R removed from the active method matrix. No final results until both owners sign off, merge, and a post-change golden check passes.
+- v0.3 proposal (Oct 28): 50-scene final cohort with scene0150_00 (430 usable frames) replaced by scene0010_00; disjoint development set; committed per-N eligibility files and cohort aggregation rule; Spann3R removed from the active method matrix. No final results until both owners sign off, merge, and a post-change golden check passes.
+  Amendment (Oct 29, Jake): TTT3R kept active as the main recurrent model with cut3r_offload as its matched CUT3R
+  baseline (official `cut3r` = reference only); run plan with Tier A (full cohorts) / Tier B (technique grid on
+  GRID_SCENES_500); tuning only on the dev scenes; same-scene rule for drift vs length.
 - v0.2 (Oct 23): 4-frame warm-up excluded from time/memory; CAP_TIMING_REPEATS timing runs (median); trajectory.npz +
   tools/drift_analysis.py; CPU-resident inputs for cut3r_offload/ttt3r_offload and required for new bounded models;
   a100_ref tier for unbounded references; golden check now covers pi3, pi3_chunk, vggt_star, streamvggt, ttt3r_offload;
