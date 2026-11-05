@@ -3,7 +3,8 @@
 
 Rules (protocol v0.1): run_config present; protocol version current; code not dirty; fp16; inputs-on-CPU rule;
 final tier `rtx6000` only on a Quadro RTX 6000; every scene/N has memory.json status ok + metrics.json.
-Exit 1 if any FINAL-tier run violates a rule (smoke tiers only produce warnings).
+Exit 1 if any FINAL-tier run violates a rule (smoke tiers only produce warnings). Runs recorded under another
+protocol version are listed as [HIST] (historical) and not checked.
 """
 import argparse
 import json
@@ -55,6 +56,11 @@ def check_run(run_dir: Path):
     return errs
 
 
+def run_version(run_dir: Path):
+    cfgs = sorted(run_dir.glob("run_config_*.json"))
+    return json.loads(cfgs[-1].read_text()).get("protocol") if cfgs else None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("results", type=Path, nargs="?", default=REPO / "results")
@@ -66,6 +72,10 @@ def main():
         if a.final_only and not final:
             continue
         for run in sorted(p for p in tier.iterdir() if p.is_dir()):
+            ver = run_version(run)
+            if ver is not None and ver != VERSION:  # e.g. v0.2 dev-scene runs: provenance, not current results
+                print(f"[HIST] {tier.name}/{run.name} (protocol v{ver}, not a v{VERSION} result)")
+                continue
             errs = check_run(run)
             label = "FINAL" if final else "smoke"
             print(f"[{'OK ' if not errs else 'BAD'}] {label} {tier.name}/{run.name}")

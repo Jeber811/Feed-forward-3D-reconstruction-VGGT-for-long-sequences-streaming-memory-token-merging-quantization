@@ -1,21 +1,27 @@
 """Build the combined results table from every protocol run in results/ (both people's). Compute node only:
-    srun -p normal -c 2 --mem=4G -t 00:05:00 python tools/make_results_table.py [results] [--tier rtx6000]
-Writes results/TABLE_<tier>.csv and .md: one row per (run name, N, scene) + a mean row over scenes.
+    srun -p normal -c 2 --mem=4G -t 00:05:00 python tools/make_results_table.py [results] [--tier rtx6000] [--protocol 0.2]
+Writes results/TABLE_<tier>.csv and .md for the current protocol version (TABLE_<tier>_v<ver> for another one): one row
+per (run name, N, scene) + a mean row over scenes. Runs of different protocol versions are never mixed in one table.
 """
 import argparse
 import csv
 import json
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+VERSION = re.search(r"^PROTOCOL_VERSION=(\S+)", (REPO / "protocol" / "protocol.env").read_text(), re.M).group(1)
 COLS = ["ate", "ate_cc", "rpe_trans", "rc_acc_med", "rc_comp_med", "rc_f5", "rc_f10"]
 
 
-def rows_for(tier_dir: Path):
+def rows_for(tier_dir: Path, version: str):
     rows = []
     for run in sorted(p for p in tier_dir.iterdir() if p.is_dir()):
         cfgs = sorted(run.glob("run_config_*.json"))
-        user = json.loads(cfgs[-1].read_text()).get("user", "?") if cfgs else "?"
+        cfg = json.loads(cfgs[-1].read_text()) if cfgs else {}
+        if cfg.get("protocol") != version:
+            continue
+        user = cfg.get("user", "?")
         for nd in sorted(run.glob("input_frame_*"), key=lambda p: int(p.name.split("_")[-1])):
             n = int(nd.name.split("_")[-1])
             for sd in sorted(p for p in nd.iterdir() if p.is_dir()):
@@ -52,18 +58,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("results", type=Path, nargs="?", default=REPO / "results")
     ap.add_argument("--tier", default="rtx6000")
+    ap.add_argument("--protocol", default=VERSION, help="protocol version to tabulate (default: current)")
     a = ap.parse_args()
-    rows = with_means(rows_for(a.results / a.tier))
+    rows = with_means(rows_for(a.results / a.tier, a.protocol))
     if not rows:
         print("no rows"); return
     keys = list(rows[0].keys())
-    with open(a.results / f"TABLE_{a.tier}.csv", "w", newline="") as f:
+    stem = f"TABLE_{a.tier}" + ("" if a.protocol == VERSION else f"_v{a.protocol}")
+    with open(a.results / f"{stem}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=keys); w.writeheader(); w.writerows(rows)
     fmt = lambda v: "" if v is None else (f"{v:.4f}" if isinstance(v, float) else str(v))
     md = ["| " + " | ".join(keys) + " |", "|" + "---|" * len(keys)]
     md += ["| " + " | ".join(fmt(r.get(k)) for k in keys) + " |" for r in rows]
-    (a.results / f"TABLE_{a.tier}.md").write_text("\n".join(md) + "\n")
-    print(f"wrote {a.results}/TABLE_{a.tier}.csv/.md ({len(rows)} rows)")
+    (a.results / f"{stem}.md").write_text("\n".join(md) + "\n")
+    print(f"wrote {a.results}/{stem}.csv/.md ({len(rows)} rows, protocol v{a.protocol})")
 
 
 if __name__ == "__main__":

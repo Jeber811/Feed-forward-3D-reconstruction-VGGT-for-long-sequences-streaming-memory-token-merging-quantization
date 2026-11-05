@@ -665,6 +665,13 @@ def main():
     ap.add_argument("--rerun", action="store_true",
                     help="recompute scenes that already have metrics.json (or a recorded OOM); default: skip them")
     args = ap.parse_args()
+    # An option the model does not implement is an error, never silently ignored (it would mislabel the run as Q/M).
+    if os.environ.get("CAP_WEIGHTS", "fp16") != "fp16" and args.model not in (
+            "vggt_star", "fastvggt", "vggt_chunk", "fastvggt_chunk"):
+        raise SystemExit(f"CAP_WEIGHTS={os.environ['CAP_WEIGHTS']} is not implemented for --model {args.model}")
+    if any(a.split("=")[0] in ("--merging", "--merge_ratio") for a in sys.argv[1:]) and args.model not in (
+            "fastvggt", "fastvggt_chunk"):
+        raise SystemExit(f"--merging/--merge_ratio have no effect on --model {args.model} (use fastvggt[_chunk])")
     torch.manual_seed(33)
 
     dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
