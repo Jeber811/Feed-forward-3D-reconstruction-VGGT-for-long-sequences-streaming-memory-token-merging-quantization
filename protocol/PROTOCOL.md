@@ -87,7 +87,7 @@ The full matrix on all cohorts (~10 GPU-h per configuration on the RTX 6000) doe
 Use the matching committed scene file for each `NS` value; submit one N per job so the `SCENES` and `NS` match. For example, after sourcing `protocol/protocol.env`, set `SCENES="$FINAL_SCENES_500"` and `NS=500` in `--export` for a 500-frame job. `protocol/scene_sets/scannet50_v03.csv` records all 50 scene IDs and finite-pose usable counts. The preflight counted nonempty RGB/depth payloads and finite camera poses from raw `.sens`; every selected scene has at least 586 usable frames (maximum 5578). The 47 newly required extracts completed in Slurm array 397363 with validated `.complete` markers. Report fixed-N means only over the eligible file for that N, with its cohort count. Do not pool N=500 and N=2000 cohorts as if they share all 50 scenes.
 
 ## 7. Sign-off
-- [ ] Jake — date: (v0.3)
+- [x] Jake — date: Nov 5 2026 (v0.3)
 - [ ] Zilzil — date: (v0.3)
 
 ## Changelog
