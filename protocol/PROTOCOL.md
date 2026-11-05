@@ -91,6 +91,9 @@ Use the matching committed scene file for each `NS` value; submit one N per job 
 - [ ] Zilzil — date: (v0.3)
 
 ## Changelog
+- v0.3 tooling (Nov 5, no settings or metric change): validate_results lists other-version runs as [HIST]; make_results_table
+  builds one table per protocol version (v0.2 tables renamed TABLE_<tier>_v0.2); run_protocol aborts if a cohort scene has
+  fewer usable frames than N; the harness errors on CAP_WEIGHTS / --merging for models that do not implement them.
 - v0.3 proposal (Oct 28): 50-scene final cohort with scene0150_00 (430 usable frames) replaced by scene0010_00; disjoint development set; committed per-N eligibility files and cohort aggregation rule; Spann3R removed from the active method matrix. No final results until both owners sign off, merge, and a post-change golden check passes.
   Amendment (Oct 29, Jake): TTT3R kept active as the main recurrent model with cut3r_offload as its matched CUT3R
   baseline (official `cut3r` = reference only); run plan with Tier A (full cohorts) / Tier B (technique grid on

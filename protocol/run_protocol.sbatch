@@ -18,6 +18,13 @@ source $CONDA_SH && conda activate $CONDA_ENV
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 : ${MODEL:?set MODEL} ${TIER:?set TIER} ${NS:?set NS}
 NAME=${NAME:-$MODEL}; SCENES=${SCENES:-$DEV_SCENES}
+# v0.3 fixed-N rule (PROTOCOL.md §2): never run a cohort scene at an N longer than its usable frames.
+for N in $NS; do for s in $SCENES; do
+  u=$(awk -F, -v s="\"$s\"" '$1==s {gsub(/"/, "", $2); print $2}' "$FINAL_SCENE_SET_DIR/scannet50_v03.csv")
+  if [ -n "$u" ] && [ "$u" -lt "$N" ]; then
+    echo "ABORT: $s has $u usable frames < N=$N (use \$FINAL_SCENES_$N and one N per job)"; exit 2
+  fi
+done; done
 verify_third_party || { echo "ABORT: third-party code differs from protocol/THIRD_PARTY.lock"; exit 2; }
 cpu_inputs_ok $MODEL && export CAP_CPU_INPUTS=1 || export CAP_CPU_INPUTS=0
 OUT=$RESULTS_ROOT/$TIER/$NAME; mkdir -p $OUT
