@@ -140,6 +140,12 @@ class Pi3Wrapper(torch.nn.Module, _NoPatchMixin):
 
         self.model = Pi3()
         self.model.load_state_dict(load_file(ckpt), strict=True)
+        weights = os.environ.get("CAP_WEIGHTS", "fp16")  # "fp16" = as released (Pi3: fp32 weights + autocast)
+        if weights == "int8":  # Q: encoder + main decoder (VGGT 'aggregator' counterpart); task decoders/heads as released
+            n = int8_weights_(self.model.encoder) + int8_weights_(self.model.decoder)
+            print(f"[Q] {n} pi3 encoder/decoder linears -> int8 weight-only", flush=True)
+        elif weights != "fp16":
+            raise ValueError(f"CAP_WEIGHTS must be fp16|int8, got {weights}")
         self.model = self.model.cuda().eval()  # official recipe: fp32 weights + autocast
 
     @torch.no_grad()
@@ -667,7 +673,7 @@ def main():
     args = ap.parse_args()
     # An option the model does not implement is an error, never silently ignored (it would mislabel the run as Q/M).
     if os.environ.get("CAP_WEIGHTS", "fp16") != "fp16" and args.model not in (
-            "vggt_star", "fastvggt", "vggt_chunk", "fastvggt_chunk"):
+            "vggt_star", "fastvggt", "vggt_chunk", "fastvggt_chunk", "pi3", "pi3_chunk"):
         raise SystemExit(f"CAP_WEIGHTS={os.environ['CAP_WEIGHTS']} is not implemented for --model {args.model}")
     if any(a.split("=")[0] in ("--merging", "--merge_ratio") for a in sys.argv[1:]) and args.model not in (
             "fastvggt", "fastvggt_chunk"):
