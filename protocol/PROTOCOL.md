@@ -1,4 +1,4 @@
-# CAP 6411 Topic 26 — shared evaluation protocol (v0.3 proposal, Oct 28 2026)
+# CAP 6411 Topic 26 — shared evaluation protocol (v0.4 proposal, Nov 5 2026)
 
 Every number that goes into the report/slides is produced by `protocol/run_protocol.sbatch` (submitted from the repo root), which sources
 `protocol/protocol.env` and calls one harness (`tools/eval_scannet_any.py`). Anything not produced this way is a
@@ -11,6 +11,7 @@ Third-party code is the shared copy pinned in `THIRD_PARTY.lock` (verified at th
 | Item | Setting |
 |---|---|
 | Final numbers | Quadro RTX 6000 24 GB (Turing, sm_75): `--partition=gpu --gres=gpu:turing:1 --constraint=gmem24` (c3-6/c3-7) |
+| Final numbers, second site (v0.4) | Tier `v100_cap24`: UCF ARCC Newton, Tesla V100-PCIE-32GB (Volta, sm_70: fp16, no bf16, no FlashAttention, like the RTX 6000), PyTorch capped at 24 GB (`CAP_MEM_CAP_GB=24`). Same env, third-party code and checkpoints (byte-identical copies at the same paths), ScanNet frames verified per scene (file count + bytes). Valid only after (a) the golden check passes on accuracy **and** peak memory against the RTX 6000 reference (`--compare-mem`; ttt3r_offload skipped) and (b) `tools/crosscheck_tiers.py` passes for Zilzil's B2 config (vggt_chunk CH_SIZE=100 CH_OVERLAP=10 CH_KF=0) on 3 grid scenes at N=500. Accuracy + memory only: timing claims come from rtx6000 `_timing` runs. Each base runs all of its comparisons on one tier. CUT3R/TTT3R stay on rtx6000. `protocol.env` detects the site; submit with `sbatch $SUBMIT_OPTS $GPU_FINAL ... TIER=$FINAL_TIER` |
 | Unbounded references | Tier `a100_ref` (`$GPU_REF`, A100 80 GB, fp16 forced): ONLY for unbounded controls that run out of memory on 24 GB (VGGT/π³ at 500–1000 frames); labelled "reference" in the report |
 | Smoke tests | `$GPU_SMOKE`, tier `smoke_<tag>`; never in report tables |
 | Low-bit hardware | No FP8 compute anywhere on the cluster and no bf16 on the RTX 6000: FP8 may only be a storage format; real low-bit compute = INT8. No FlashAttention-2 on Turing (absolute speed understates newer GPUs; memory unaffected) |
@@ -82,6 +83,9 @@ The full matrix on all cohorts (~10 GPU-h per configuration on the RTX 6000) doe
 - Knob tuning (chunk size, #keyframes, budget_mb, merge ratio) only on the dev scenes `scene0111_00 scene0188_00`;
   configurations picked on the v0.2 dev scenes (scene0000_00, scene0013_02 — now test scenes) are re-checked there.
 - Drift vs length: compare N only on the same scenes (the 13-scene N=2000 cohort run at every N).
+- v0.4 tiers: rtx6000 and v100_cap24 results share one table (`make_results_table.py --tier rtx6000,v100_cap24`,
+  with a tier column) for accuracy and peak memory. Seconds/frame is compared only within a tier; the report's
+  speed numbers come from rtx6000 timing runs.
 
 ### Fixed-N final cohort submission
 Use the matching committed scene file for each `NS` value; submit one N per job so the `SCENES` and `NS` match. For example, after sourcing `protocol/protocol.env`, set `SCENES="$FINAL_SCENES_500"` and `NS=500` in `--export` for a 500-frame job. `protocol/scene_sets/scannet50_v03.csv` records all 50 scene IDs and finite-pose usable counts. The preflight counted nonempty RGB/depth payloads and finite camera poses from raw `.sens`; every selected scene has at least 586 usable frames (maximum 5578). The 47 newly required extracts completed in Slurm array 397363 with validated `.complete` markers. Report fixed-N means only over the eligible file for that N, with its cohort count. Do not pool N=500 and N=2000 cohorts as if they share all 50 scenes.
@@ -89,8 +93,16 @@ Use the matching committed scene file for each `NS` value; submit one N per job 
 ## 7. Sign-off
 - [x] Jake — date: Nov 5 2026 (v0.3)
 - [ ] Zilzil — date: (v0.3)
+- [ ] Jake — date: (v0.4)
+- [ ] Zilzil — date: (v0.4)
 
 ## Changelog
+- v0.4 proposal (Nov 5, Jake): second final site, because all 8 CRCV RTX 6000s are held by 14–30-day jobs (Slurm
+  start estimate Nov 19). Adds tier `v100_cap24` (Newton V100 32 GB with a 24 GB PyTorch cap; see section 1), site
+  detection in `protocol.env` (paths, `GPU_FINAL`, `SUBMIT_OPTS`, `FINAL_TIER`), `CAP_MEM_CAP_GB` in the harness and
+  run_config, golden `--compare-mem`/`--skip`, `tools/crosscheck_tiers.py`, combined multi-tier tables, and
+  `PROTOCOL_COMPATIBLE="0.3 0.4"`. **Measurement-identical to v0.3** (scenes, frames, input size, precision,
+  metrics, memory measurement, budgets unchanged), so v0.3 results stay current and are tabulated with v0.4 ones.
 - v0.3 tooling (Nov 5, no settings or metric change): validate_results lists other-version runs as [HIST]; make_results_table
   builds one table per protocol version (v0.2 tables renamed TABLE_<tier>_v0.2); run_protocol aborts if a cohort scene has
   fewer usable frames than N; the harness errors on CAP_WEIGHTS / --merging for models that do not implement them.

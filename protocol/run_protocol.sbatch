@@ -12,11 +12,16 @@
 #     --export=ALL,MODEL=pi3_chunk,NAME=pi3_chunk_K,NS="1000",TIER=rtx6000,EXTRA_ENV="CH_SIZE=200 CH_OVERLAP=30 CH_KF=20" \
 #     protocol/run_protocol.sbatch
 # Smoke tests: $GPU_SMOKE and TIER=smoke_<tag> (never used in report tables). Optional: SCENES, HARNESS_ARGS.
-source /etc/profile.d/modules.sh
+# On Newton (v0.4): sbatch $SUBMIT_OPTS $GPU_FINAL ... TIER=$FINAL_TIER (= v100_cap24); same command otherwise.
+source /etc/profile.d/modules.sh 2>/dev/null || source /etc/profile.d/lmod.sh
 export REPO=$SLURM_SUBMIT_DIR; source $REPO/protocol/protocol.env
 source $CONDA_SH && conda activate $CONDA_ENV
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 : ${MODEL:?set MODEL} ${TIER:?set TIER} ${NS:?set NS}
+# v0.4: final tiers are site-bound (rtx6000 only on CRCV, v100_cap24 only on Newton with the 24 GB cap)
+if [[ "$TIER" == rtx6000 || "$TIER" == v100_cap24 ]] && [ "$TIER" != "$FINAL_TIER" ]; then
+  echo "ABORT: TIER=$TIER is not the final tier on site $SITE (use TIER=$FINAL_TIER)"; exit 2
+fi
 NAME=${NAME:-$MODEL}; SCENES=${SCENES:-$DEV_SCENES}
 # v0.3 fixed-N rule (PROTOCOL.md §2): never run a cohort scene at an N longer than its usable frames.
 for N in $NS; do for s in $SCENES; do
@@ -35,7 +40,8 @@ cat > $OUT/run_config_${SLURM_JOB_ID}.json <<JSON
  "job": "$SLURM_JOB_ID", "host": "$(hostname)", "gpu": "$GPU", "conda_env": "$CONDA_ENV", "tier": "$TIER",
  "model": "$MODEL", "name": "$NAME", "lengths": "$NS", "scenes": "$SCENES", "extra_env": "$EXTRA_ENV",
  "harness_args": "$HARNESS_ARGS", "CAP_DTYPE": "$CAP_DTYPE", "CAP_CPU_INPUTS": "$CAP_CPU_INPUTS",
- "CH_MEMORDER": "$CH_MEMORDER", "CH_ALIGN": "$CH_ALIGN", "date": "$(date -Iseconds)"}
+ "CH_MEMORDER": "$CH_MEMORDER", "CH_ALIGN": "$CH_ALIGN", "site": "$SITE", "CAP_MEM_CAP_GB": "${CAP_MEM_CAP_GB:-}",
+ "date": "$(date -Iseconds)"}
 JSON
 echo "protocol v$PROTOCOL_VERSION | job $SLURM_JOB_ID on $(hostname) | $GPU | $MODEL as $NAME | Ns=$NS | $(date)"
 for N in $NS; do
