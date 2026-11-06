@@ -1,0 +1,10 @@
+{
+  "scene": "scene0000_00",
+  "model": "pi3",
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "dtype": "torch.float16",
+  "num_frames": 1000,
+  "model_weights_gb": 3.572,
+  "status": "error",
+  "eval_error": "RuntimeError: CUDA error: an illegal memory access was encountered\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1.\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"
+}
