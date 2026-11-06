@@ -2,6 +2,8 @@
 
 Passes when pose/geometry metrics match within tolerance (GPU nondeterminism only) and peak memory matches within
 3% on the same GPU model. Exit code 0 = PASS, 1 = FAIL. --record writes the expected file instead (maintainers only).
+v0.4: --compare-mem also compares peak memory on a different GPU (Newton V100 tier vs the RTX 6000 reference);
+--skip leaves out models that tier does not run.
 """
 import argparse
 import json
@@ -31,6 +33,8 @@ def main():
     ap.add_argument("expected", type=Path)
     ap.add_argument("--gpu", default="")
     ap.add_argument("--record", action="store_true")
+    ap.add_argument("--compare-mem", action="store_true", help="compare peak memory even on a different GPU")
+    ap.add_argument("--skip", nargs="*", default=[], help="reference models this tier does not run")
     a = ap.parse_args()
     got = collect(a.run_dir)
     if a.record:
@@ -40,10 +44,13 @@ def main():
         return 0
     exp = json.loads(a.expected.read_text())
     same_gpu = exp["gpu"] == a.gpu
+    cmp_mem = same_gpu or a.compare_mem
     if not same_gpu:
-        print(f"WARNING: GPU {a.gpu!r} != reference {exp['gpu']!r}: memory not compared")
+        print(f"NOTE: GPU {a.gpu!r} != reference {exp['gpu']!r}: memory " + ("compared (--compare-mem)" if cmp_mem else "not compared"))
     ok = True
     for model, ref in exp["models"].items():
+        if model in a.skip:
+            print(f"skip {model:10s} (not run on this tier)"); continue
         cur = got.get(model)
         if cur is None:
             print(f"FAIL {model}: missing"); ok = False; continue
@@ -54,7 +61,7 @@ def main():
             good = diff <= atol or diff <= rtol * abs(ref[k])
             ok &= good
             print(f"{'ok  ' if good else 'FAIL'} {model:10s} {k:12s} ref={ref[k]:.5f} got={cur[k]:.5f}")
-        if same_gpu:
+        if cmp_mem:
             r, c = ref["peak_allocated_gb"], cur["peak_allocated_gb"]
             good = abs(c - r) <= MEM_REL * r
             ok &= good

@@ -678,6 +678,13 @@ def main():
     if os.environ.get("CAP_DTYPE"):  # testing only, e.g. exercise the bf16 (Ampere) path on a Turing card
         dtype = getattr(torch, os.environ["CAP_DTYPE"])
     gpu = torch.cuda.get_device_name(0)
+    # v0.4 (tier v100_cap24): cap the caching allocator at CAP_MEM_CAP_GB on a larger card, so anything that would not
+    # fit a 24 GB GPU runs out of memory exactly as on the RTX 6000. Peak-memory measurement itself is unchanged.
+    cap_gb = float(os.environ.get("CAP_MEM_CAP_GB", "0"))
+    if cap_gb > 0:
+        total_gb = torch.cuda.get_device_properties(0).total_memory / 2**30
+        torch.cuda.set_per_process_memory_fraction(min(1.0, cap_gb / total_gb), 0)
+        gpu += f" (capped {cap_gb:g} GB)"
     print(f"GPU {gpu} | dtype {dtype} | model {args.model} | N={args.input_frame}", flush=True)
     model = build_model(args, dtype)
     model_mem_gb = torch.cuda.memory_allocated() / 2**30

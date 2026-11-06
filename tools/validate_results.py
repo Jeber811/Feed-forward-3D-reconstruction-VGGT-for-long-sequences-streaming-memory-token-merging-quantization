@@ -3,6 +3,8 @@
 
 Rules (protocol v0.1): run_config present; protocol version current; code not dirty; fp16; inputs-on-CPU rule;
 final tier `rtx6000` only on a Quadro RTX 6000; every scene/N has memory.json status ok + metrics.json.
+v0.4: versions in PROTOCOL_COMPATIBLE count as current; tier `v100_cap24` only on a V100-PCIE-32GB at Newton with
+CAP_MEM_CAP_GB=24.
 Exit 1 if any FINAL-tier run violates a rule (smoke tiers only produce warnings). Runs recorded under another
 protocol version are listed as [HIST] (historical) and not checked.
 """
@@ -18,7 +20,9 @@ VERSION = re.search(r"^PROTOCOL_VERSION=(\S+)", ENV, re.M).group(1)
 CPU_INPUT_MODELS = set(re.search(r"cpu_inputs_ok\(\) \{ case \$1 in ([^)]+)\)", ENV).group(1).split("|"))
 # tiers whose runs may enter report tables -> required GPU. rtx6000 = main 24 GB results; a100_ref = unbounded
 # controls that run out of memory on 24 GB (labelled "reference" in the report).
-FINAL_TIERS = {"rtx6000": "Quadro RTX 6000", "a100_ref": "A100"}
+FINAL_TIERS = {"rtx6000": "Quadro RTX 6000", "a100_ref": "A100", "v100_cap24": "V100-PCIE-32GB"}
+# v0.4: versions whose measurements are identical (their results count as current and are tabulated together)
+COMPATIBLE = set(re.search(r'^PROTOCOL_COMPATIBLE="([^"]+)"', ENV, re.M).group(1).split())
 
 
 def check_run(run_dir: Path):
@@ -29,8 +33,10 @@ def check_run(run_dir: Path):
     for f in cfgs:
         c = json.loads(f.read_text())
         tag = f.name
-        if c.get("protocol") != VERSION:
-            errs.append(f"{tag}: protocol {c.get('protocol')} != {VERSION}")
+        if c.get("protocol") not in COMPATIBLE:
+            errs.append(f"{tag}: protocol {c.get('protocol')} not in {sorted(COMPATIBLE)}")
+        if c.get("tier") == "v100_cap24" and (c.get("site") != "newton" or c.get("CAP_MEM_CAP_GB") != "24"):
+            errs.append(f"{tag}: v100_cap24 needs site=newton and CAP_MEM_CAP_GB=24")
         if str(c.get("git_commit", "")).endswith("-dirty"):
             errs.append(f"{tag}: code was dirty")
         if c.get("CAP_DTYPE") != "float16":
@@ -73,8 +79,8 @@ def main():
             continue
         for run in sorted(p for p in tier.iterdir() if p.is_dir()):
             ver = run_version(run)
-            if ver is not None and ver != VERSION:  # e.g. v0.2 dev-scene runs: provenance, not current results
-                print(f"[HIST] {tier.name}/{run.name} (protocol v{ver}, not a v{VERSION} result)")
+            if ver is not None and ver not in COMPATIBLE:  # e.g. v0.2 dev-scene runs: provenance, not current results
+                print(f"[HIST] {tier.name}/{run.name} (protocol v{ver}, not comparable with v{VERSION})")
                 continue
             errs = check_run(run)
             label = "FINAL" if final else "smoke"

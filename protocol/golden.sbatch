@@ -8,9 +8,11 @@
 #SBATCH --error=logs/%x_%j.err
 # Golden check: proves your setup reproduces the reference numbers. Run once per person and after ANY setup change,
 # on the final-tier GPU, from the repo root:
-#   mkdir -p logs && source protocol/protocol.env && sbatch --qos=short $GPU_FINAL protocol/golden.sbatch
+#   mkdir -p logs && source protocol/protocol.env && sbatch $SUBMIT_OPTS $GPU_FINAL protocol/golden.sbatch
+# On Newton (v0.4) the same command checks accuracy AND peak memory against the RTX 6000 reference, skipping
+# $GOLDEN_SKIP (recurrent models stay on the RTX 6000).
 # RECORD=1 (maintainers only, with a version bump) rewrites protocol/golden/expected.json instead of checking.
-source /etc/profile.d/modules.sh
+source /etc/profile.d/modules.sh 2>/dev/null || source /etc/profile.d/lmod.sh
 export REPO=$SLURM_SUBMIT_DIR; source $REPO/protocol/protocol.env
 source $CONDA_SH && conda activate $CONDA_ENV
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
@@ -21,8 +23,10 @@ GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1); echo "golden
 # vggt_star (FastVGGT VGGT* path), streamvggt (StreamVGGT path), ttt3r_offload (recurrent, CPU inputs)
 for cfg in "pi3 X=0" "pi3_chunk CH_SIZE=25 CH_OVERLAP=5 CH_KF=3" "vggt_star X=0" "streamvggt X=0" "ttt3r_offload X=0"; do
   set -- $cfg; m=$1; shift
+  [[ " $GOLDEN_SKIP " == *" $m "* ]] && { echo "golden: skipping $m on $SITE"; continue; }
   cpu_inputs_ok $m && export CAP_CPU_INPUTS=1 || export CAP_CPU_INPUTS=0
   env "$@" python $HARNESS --model $m --ckpt_path $(ckpt_for $m) --data_dir $DATA --gt_ply_dir $GT_PLY_DIR \
     --scenes scene0013_02 --input_frame 60 --output_path $G/$m --rerun || { echo "GOLDEN FAILED: $m crashed"; exit 1; }
 done
-python $REPO/tools/check_golden.py $G $REPO/protocol/golden/expected.json --gpu "$GPU" ${RECORD:+--record}
+python $REPO/tools/check_golden.py $G $REPO/protocol/golden/expected.json --gpu "$GPU" ${RECORD:+--record} \
+  ${GOLDEN_COMPARE_MEM:+--compare-mem} ${GOLDEN_SKIP:+--skip $GOLDEN_SKIP}

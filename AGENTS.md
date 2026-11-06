@@ -6,7 +6,10 @@ This is a two-person course project (CAP 6411, UCF, Fall 2026, Topic 26: long-se
 ## Hard rules
 1. **Report numbers come only from `protocol/run_protocol.sbatch`** with `TIER=rtx6000` on the Quadro RTX 6000
    (`$GPU_FINAL` from `protocol/protocol.env`). Anything else is a smoke test (`TIER=smoke_<tag>`) and never goes into
-   report tables or slides as a final number.
+   report tables or slides as a final number. v0.4: on UCF ARCC Newton the same scripts use `TIER=v100_cap24`
+   (V100 32 GB capped to 24 GB; `protocol.env` sets `$FINAL_TIER`, `$GPU_FINAL`, `$SUBMIT_OPTS` per site). Newton
+   rules: account `course_cap5415`, nothing heavy and no transfers on the login nodes (evuser1/2), few jobs at once,
+   realistic `--time`; results JSON are copied back to a CRCV clone and committed from there.
 2. **Before your first protocol run, and after any setup change, run the golden check** and make sure it prints
    `GOLDEN PASS`: `mkdir -p logs && source protocol/protocol.env && sbatch --qos=short $GPU_FINAL protocol/golden.sbatch`.
 3. **Do not edit `protocol/protocol.env`, `protocol/THIRD_PARTY.lock`, `protocol/golden/` or the shared metric/memory
