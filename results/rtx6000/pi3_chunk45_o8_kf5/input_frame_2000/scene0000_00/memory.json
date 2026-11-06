@@ -1,0 +1,465 @@
+{
+  "scene": "scene0000_00",
+  "model": "pi3_chunk",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 2000,
+  "model_weights_gb": 3.572,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 7.23,
+  "peak_reserved_gb": 8.121,
+  "inference_time_ms": 467532.3,
+  "inference_time_ms_all": [
+    467532.3
+  ],
+  "fps": 4.278,
+  "chunks": [
+    {
+      "start": 0,
+      "n_mem": 0,
+      "n_new": 45,
+      "scale": 1.0,
+      "median_resid": 0.0
+    },
+    {
+      "start": 45,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.1155,
+      "median_resid": 0.00379
+    },
+    {
+      "start": 77,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0865,
+      "median_resid": 0.00796
+    },
+    {
+      "start": 109,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0735,
+      "median_resid": 0.00389
+    },
+    {
+      "start": 141,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0852,
+      "median_resid": 0.00334
+    },
+    {
+      "start": 173,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0746,
+      "median_resid": 0.00532
+    },
+    {
+      "start": 205,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.167,
+      "median_resid": 0.00498
+    },
+    {
+      "start": 237,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0875,
+      "median_resid": 0.00477
+    },
+    {
+      "start": 269,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0716,
+      "median_resid": 0.00317
+    },
+    {
+      "start": 301,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.2041,
+      "median_resid": 0.00886
+    },
+    {
+      "start": 333,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.1976,
+      "median_resid": 0.00662
+    },
+    {
+      "start": 365,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.182,
+      "median_resid": 0.00534
+    },
+    {
+      "start": 397,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3653,
+      "median_resid": 0.00556
+    },
+    {
+      "start": 429,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4,
+      "median_resid": 0.0107
+    },
+    {
+      "start": 461,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.2537,
+      "median_resid": 0.00562
+    },
+    {
+      "start": 493,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.1779,
+      "median_resid": 0.0054
+    },
+    {
+      "start": 525,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3363,
+      "median_resid": 0.01066
+    },
+    {
+      "start": 557,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3745,
+      "median_resid": 0.00534
+    },
+    {
+      "start": 589,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4141,
+      "median_resid": 0.00642
+    },
+    {
+      "start": 621,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.41,
+      "median_resid": 0.004
+    },
+    {
+      "start": 653,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3739,
+      "median_resid": 0.01018
+    },
+    {
+      "start": 685,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3518,
+      "median_resid": 0.00751
+    },
+    {
+      "start": 717,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4045,
+      "median_resid": 0.00646
+    },
+    {
+      "start": 749,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4021,
+      "median_resid": 0.0021
+    },
+    {
+      "start": 781,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4287,
+      "median_resid": 0.00457
+    },
+    {
+      "start": 813,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4152,
+      "median_resid": 0.00483
+    },
+    {
+      "start": 845,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.5032,
+      "median_resid": 0.00586
+    },
+    {
+      "start": 877,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4354,
+      "median_resid": 0.00487
+    },
+    {
+      "start": 909,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3816,
+      "median_resid": 0.0285
+    },
+    {
+      "start": 941,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4853,
+      "median_resid": 0.01656
+    },
+    {
+      "start": 973,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.5266,
+      "median_resid": 0.02762
+    },
+    {
+      "start": 1005,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4272,
+      "median_resid": 0.02288
+    },
+    {
+      "start": 1037,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3861,
+      "median_resid": 0.01018
+    },
+    {
+      "start": 1069,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3389,
+      "median_resid": 0.10975
+    },
+    {
+      "start": 1101,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.2745,
+      "median_resid": 0.04149
+    },
+    {
+      "start": 1133,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3114,
+      "median_resid": 0.0582
+    },
+    {
+      "start": 1165,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.318,
+      "median_resid": 0.04555
+    },
+    {
+      "start": 1197,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3516,
+      "median_resid": 0.01362
+    },
+    {
+      "start": 1229,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4999,
+      "median_resid": 0.03101
+    },
+    {
+      "start": 1261,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.6177,
+      "median_resid": 0.04973
+    },
+    {
+      "start": 1293,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.6172,
+      "median_resid": 0.04646
+    },
+    {
+      "start": 1325,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.506,
+      "median_resid": 0.04248
+    },
+    {
+      "start": 1357,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.5624,
+      "median_resid": 0.03331
+    },
+    {
+      "start": 1389,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.6012,
+      "median_resid": 0.01516
+    },
+    {
+      "start": 1421,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3406,
+      "median_resid": 0.05032
+    },
+    {
+      "start": 1453,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.347,
+      "median_resid": 0.22025
+    },
+    {
+      "start": 1485,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4092,
+      "median_resid": 0.15767
+    },
+    {
+      "start": 1517,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.1106,
+      "median_resid": 0.30373
+    },
+    {
+      "start": 1549,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.0829,
+      "median_resid": 0.25701
+    },
+    {
+      "start": 1581,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.1494,
+      "median_resid": 0.21297
+    },
+    {
+      "start": 1613,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.2104,
+      "median_resid": 0.17322
+    },
+    {
+      "start": 1645,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3261,
+      "median_resid": 0.05064
+    },
+    {
+      "start": 1677,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3243,
+      "median_resid": 0.05099
+    },
+    {
+      "start": 1709,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3496,
+      "median_resid": 0.05085
+    },
+    {
+      "start": 1741,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3749,
+      "median_resid": 0.03951
+    },
+    {
+      "start": 1773,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.5351,
+      "median_resid": 0.02347
+    },
+    {
+      "start": 1805,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4634,
+      "median_resid": 0.03436
+    },
+    {
+      "start": 1837,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3231,
+      "median_resid": 0.03076
+    },
+    {
+      "start": 1869,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.3824,
+      "median_resid": 0.02859
+    },
+    {
+      "start": 1901,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4298,
+      "median_resid": 0.01018
+    },
+    {
+      "start": 1933,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4802,
+      "median_resid": 0.03848
+    },
+    {
+      "start": 1965,
+      "n_mem": 13,
+      "n_new": 32,
+      "scale": 1.4016,
+      "median_resid": 0.01346
+    },
+    {
+      "start": 1997,
+      "n_mem": 13,
+      "n_new": 3,
+      "scale": 1.4435,
+      "median_resid": 0.08544
+    }
+  ],
+  "chunk_cfg": {
+    "chunk": 45,
+    "overlap": 8,
+    "kf": 5
+  }
+}
