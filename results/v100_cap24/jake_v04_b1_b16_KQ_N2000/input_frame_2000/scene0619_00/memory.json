@@ -1,0 +1,87 @@
+{
+  "scene": "scene0619_00",
+  "model": "pi3_chunk",
+  "gpu": "Tesla V100-PCIE-32GB (capped 24 GB)",
+  "dtype": "torch.float16",
+  "num_frames": 2000,
+  "model_weights_gb": 1.476,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 14.322,
+  "peak_reserved_gb": 18.217,
+  "inference_time_ms": 2280495.3,
+  "inference_time_ms_all": [
+    2280495.3
+  ],
+  "fps": 0.877,
+  "chunks": [
+    {
+      "start": 0,
+      "n_mem": 0,
+      "n_new": 300,
+      "scale": 1.0,
+      "median_resid": 0.0
+    },
+    {
+      "start": 300,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.0579,
+      "median_resid": 0.00542
+    },
+    {
+      "start": 525,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.1993,
+      "median_resid": 0.00593
+    },
+    {
+      "start": 750,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.2669,
+      "median_resid": 0.00373
+    },
+    {
+      "start": 975,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.239,
+      "median_resid": 0.00496
+    },
+    {
+      "start": 1200,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.2525,
+      "median_resid": 0.00556
+    },
+    {
+      "start": 1425,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.2689,
+      "median_resid": 0.00623
+    },
+    {
+      "start": 1650,
+      "n_mem": 75,
+      "n_new": 225,
+      "scale": 1.2546,
+      "median_resid": 0.00581
+    },
+    {
+      "start": 1875,
+      "n_mem": 75,
+      "n_new": 125,
+      "scale": 1.3474,
+      "median_resid": 0.00452
+    }
+  ],
+  "chunk_cfg": {
+    "chunk": 300,
+    "overlap": 45,
+    "kf": 30
+  }
+}
