@@ -1,0 +1,129 @@
+{
+  "scene": "scene0010_00",
+  "model": "pi3_chunk",
+  "gpu": "Tesla V100-PCIE-32GB (capped 24 GB)",
+  "dtype": "torch.float16",
+  "num_frames": 2000,
+  "model_weights_gb": 1.476,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 9.336,
+  "peak_reserved_gb": 11.553,
+  "inference_time_ms": 1413301.5,
+  "inference_time_ms_all": [
+    1413301.5
+  ],
+  "fps": 1.415,
+  "chunks": [
+    {
+      "start": 0,
+      "n_mem": 0,
+      "n_new": 180,
+      "scale": 1.0,
+      "median_resid": 0.0
+    },
+    {
+      "start": 180,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0491,
+      "median_resid": 0.00664
+    },
+    {
+      "start": 315,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.2284,
+      "median_resid": 0.01137
+    },
+    {
+      "start": 450,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.1504,
+      "median_resid": 0.01044
+    },
+    {
+      "start": 585,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0559,
+      "median_resid": 0.01808
+    },
+    {
+      "start": 720,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0836,
+      "median_resid": 0.01429
+    },
+    {
+      "start": 855,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.1249,
+      "median_resid": 0.00889
+    },
+    {
+      "start": 990,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0668,
+      "median_resid": 0.01319
+    },
+    {
+      "start": 1125,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0493,
+      "median_resid": 0.01129
+    },
+    {
+      "start": 1260,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.0735,
+      "median_resid": 0.01073
+    },
+    {
+      "start": 1395,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.1561,
+      "median_resid": 0.00529
+    },
+    {
+      "start": 1530,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.1521,
+      "median_resid": 0.00773
+    },
+    {
+      "start": 1665,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.156,
+      "median_resid": 0.00646
+    },
+    {
+      "start": 1800,
+      "n_mem": 45,
+      "n_new": 135,
+      "scale": 1.1703,
+      "median_resid": 0.0046
+    },
+    {
+      "start": 1935,
+      "n_mem": 45,
+      "n_new": 65,
+      "scale": 1.1811,
+      "median_resid": 0.0087
+    }
+  ],
+  "chunk_cfg": {
+    "chunk": 180,
+    "overlap": 27,
+    "kf": 18
+  }
+}

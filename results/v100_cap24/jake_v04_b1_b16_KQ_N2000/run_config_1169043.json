@@ -1,0 +1,6 @@
+{"protocol": "0.4", "git_commit": "60e7b80", "user": "ja396977",
+ "job": "1169043", "host": "evc20", "gpu": "Tesla V100-PCIE-32GB, 32768 MiB", "conda_env": "/home/ja396977/.conda/envs/cap6411_env", "tier": "v100_cap24",
+ "model": "pi3_chunk", "name": "jake_v04_b1_b16_KQ_N2000", "lengths": "2000", "scenes": "scene0000_00 scene0010_00 scene0029_01 scene0294_02 scene0353_02 scene0395_00 scene0421_02 scene0477_00 scene0593_00 scene0606_01 scene0619_00 scene0648_00 scene0663_01 ", "extra_env": "CH_SIZE=300 CH_OVERLAP=45 CH_KF=30 CAP_WEIGHTS=int8",
+ "harness_args": "", "CAP_DTYPE": "float16", "CAP_CPU_INPUTS": "1",
+ "CH_MEMORDER": "recent_first", "CH_ALIGN": "svd", "site": "newton", "CAP_MEM_CAP_GB": "24",
+ "date": "2026-11-06T19:47:29-05:00"}

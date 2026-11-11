@@ -1,0 +1,255 @@
+{
+  "scene": "scene0353_02",
+  "model": "pi3_chunk",
+  "gpu": "Tesla V100-PCIE-32GB (capped 24 GB)",
+  "dtype": "torch.float16",
+  "num_frames": 2000,
+  "model_weights_gb": 1.476,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 5.18,
+  "peak_reserved_gb": 6.164,
+  "inference_time_ms": 707809.2,
+  "inference_time_ms_all": [
+    707809.2
+  ],
+  "fps": 2.826,
+  "chunks": [
+    {
+      "start": 0,
+      "n_mem": 0,
+      "n_new": 80,
+      "scale": 1.0,
+      "median_resid": 0.0
+    },
+    {
+      "start": 80,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8849,
+      "median_resid": 0.00281
+    },
+    {
+      "start": 140,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8347,
+      "median_resid": 0.00465
+    },
+    {
+      "start": 200,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9281,
+      "median_resid": 0.00515
+    },
+    {
+      "start": 260,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.0266,
+      "median_resid": 0.00502
+    },
+    {
+      "start": 320,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8966,
+      "median_resid": 0.0032
+    },
+    {
+      "start": 380,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9048,
+      "median_resid": 0.00604
+    },
+    {
+      "start": 440,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.0124,
+      "median_resid": 0.01056
+    },
+    {
+      "start": 500,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9908,
+      "median_resid": 0.01367
+    },
+    {
+      "start": 560,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9727,
+      "median_resid": 0.00826
+    },
+    {
+      "start": 620,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9798,
+      "median_resid": 0.01414
+    },
+    {
+      "start": 680,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9468,
+      "median_resid": 0.01887
+    },
+    {
+      "start": 740,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8252,
+      "median_resid": 0.0183
+    },
+    {
+      "start": 800,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8415,
+      "median_resid": 0.01092
+    },
+    {
+      "start": 860,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.935,
+      "median_resid": 0.02579
+    },
+    {
+      "start": 920,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.908,
+      "median_resid": 0.03977
+    },
+    {
+      "start": 980,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9365,
+      "median_resid": 0.01178
+    },
+    {
+      "start": 1040,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9197,
+      "median_resid": 0.01898
+    },
+    {
+      "start": 1100,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9344,
+      "median_resid": 0.01347
+    },
+    {
+      "start": 1160,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9921,
+      "median_resid": 0.00799
+    },
+    {
+      "start": 1220,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.0364,
+      "median_resid": 0.00399
+    },
+    {
+      "start": 1280,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9403,
+      "median_resid": 0.00565
+    },
+    {
+      "start": 1340,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9092,
+      "median_resid": 0.00879
+    },
+    {
+      "start": 1400,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8852,
+      "median_resid": 0.00559
+    },
+    {
+      "start": 1460,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9509,
+      "median_resid": 0.00894
+    },
+    {
+      "start": 1520,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9903,
+      "median_resid": 0.01352
+    },
+    {
+      "start": 1580,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9736,
+      "median_resid": 0.02928
+    },
+    {
+      "start": 1640,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.931,
+      "median_resid": 0.01357
+    },
+    {
+      "start": 1700,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9073,
+      "median_resid": 0.0291
+    },
+    {
+      "start": 1760,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9096,
+      "median_resid": 0.01553
+    },
+    {
+      "start": 1820,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.9339,
+      "median_resid": 0.01663
+    },
+    {
+      "start": 1880,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8915,
+      "median_resid": 0.04718
+    },
+    {
+      "start": 1940,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 0.8647,
+      "median_resid": 0.02014
+    }
+  ],
+  "chunk_cfg": {
+    "chunk": 80,
+    "overlap": 12,
+    "kf": 8
+  }
+}
