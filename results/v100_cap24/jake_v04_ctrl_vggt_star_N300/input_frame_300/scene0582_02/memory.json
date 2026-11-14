@@ -1,0 +1,16 @@
+{
+  "scene": "scene0582_02",
+  "model": "vggt_star",
+  "gpu": "Tesla V100-PCIE-32GB (capped 24 GB)",
+  "dtype": "torch.float16",
+  "num_frames": 300,
+  "model_weights_gb": 2.16,
+  "status": "ok",
+  "peak_allocated_gb": 16.289,
+  "peak_reserved_gb": 23.127,
+  "inference_time_ms": 343022.0,
+  "inference_time_ms_all": [
+    343022.0
+  ],
+  "fps": 0.875
+}
