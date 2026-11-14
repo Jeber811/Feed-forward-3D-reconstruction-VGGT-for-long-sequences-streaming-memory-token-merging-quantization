@@ -1,0 +1,18 @@
+{
+  "scene": "scene0000_00",
+  "model": "vggt_star",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 300,
+  "model_weights_gb": 2.16,
+  "status": "ok",
+  "peak_allocated_gb": 16.289,
+  "peak_reserved_gb": 23.127,
+  "inference_time_ms": 316211.1,
+  "inference_time_ms_all": [
+    314341.5,
+    316211.1,
+    316302.8
+  ],
+  "fps": 0.949
+}

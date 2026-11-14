@@ -1,0 +1,16 @@
+{
+  "scene": "scene0136_01",
+  "model": "pi3",
+  "gpu": "Tesla V100-PCIE-32GB (capped 24 GB)",
+  "dtype": "torch.float16",
+  "num_frames": 300,
+  "model_weights_gb": 3.572,
+  "status": "ok",
+  "peak_allocated_gb": 17.779,
+  "peak_reserved_gb": 22.674,
+  "inference_time_ms": 264065.9,
+  "inference_time_ms_all": [
+    264065.9
+  ],
+  "fps": 1.136
+}
