@@ -1,0 +1,82 @@
+{
+  "scene": "scene0000_00",
+  "model": "pi3_chunk",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 500,
+  "model_weights_gb": 1.476,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 5.18,
+  "peak_reserved_gb": 6.162,
+  "inference_time_ms": 160690.2,
+  "inference_time_ms_all": [
+    159710.2,
+    161513.9,
+    160690.2
+  ],
+  "fps": 3.112,
+  "chunks": [
+    {
+      "start": 0,
+      "n_mem": 0,
+      "n_new": 80,
+      "scale": 1.0,
+      "median_resid": 0.0
+    },
+    {
+      "start": 80,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.1783,
+      "median_resid": 0.00565
+    },
+    {
+      "start": 140,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.1441,
+      "median_resid": 0.00503
+    },
+    {
+      "start": 200,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.1682,
+      "median_resid": 0.00862
+    },
+    {
+      "start": 260,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.0598,
+      "median_resid": 0.00656
+    },
+    {
+      "start": 320,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.3084,
+      "median_resid": 0.01319
+    },
+    {
+      "start": 380,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.0997,
+      "median_resid": 0.00736
+    },
+    {
+      "start": 440,
+      "n_mem": 20,
+      "n_new": 60,
+      "scale": 1.1167,
+      "median_resid": 0.00773
+    }
+  ],
+  "chunk_cfg": {
+    "chunk": 80,
+    "overlap": 20,
+    "kf": 0
+  }
+}
