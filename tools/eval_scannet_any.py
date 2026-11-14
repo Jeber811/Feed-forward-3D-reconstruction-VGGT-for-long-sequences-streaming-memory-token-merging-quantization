@@ -146,6 +146,11 @@ class Pi3Wrapper(torch.nn.Module, _NoPatchMixin):
             print(f"[Q] {n} pi3 encoder/decoder linears -> int8 weight-only", flush=True)
         elif weights != "fp16":
             raise ValueError(f"CAP_WEIGHTS must be fp16|int8, got {weights}")
+        if os.environ.get("CAP_MERGE", "") != "":  # M: token merging in the global-attention blocks (off by default)
+            ratio = float(os.environ.get("CAP_MERGE_RATIO", "0.9"))  # FastVGGT default
+            n = pi3_merge_(self.model, int(os.environ["CAP_MERGE"]), ratio)
+            print(f"[M] token merging in {n} pi3 global-attention blocks (from global block "
+                  f"{os.environ['CAP_MERGE']}, merge_ratio {ratio})", flush=True)
         self.model = self.model.cuda().eval()  # official recipe: fp32 weights + autocast
 
     @torch.no_grad()
@@ -191,6 +196,54 @@ def int8_weights_(module):
             n += 1
         else:
             n += int8_weights_(child)
+    return n
+
+
+def pi3_merge_(model, start, ratio):
+    """M for pi3 (CAP_MERGE=<first global block>): FastVGGT's training-free token merging, ported to pi3's
+    global-attention decoder blocks (odd decoder indices). Same recipe as FastVGGT: after RoPE, bipartite
+    2x2-grid merging of q/k/v (first frame and the 5 special tokens per frame are never merged, 10% of tokens
+    protected, seed 33), attention on the merged tokens, then unmerge after the output projection, so every
+    token is restored for the dense heads. pi3 has 5 register tokens per frame, the layout FastVGGT assumes.
+    Patch-grid size comes from a forward pre-hook on the pi3 model (works for pi3 and pi3_chunk)."""
+    import types
+    from torch.nn.attention import SDPBackend, sdpa_kernel
+    sys.path.insert(0, str(TP / "FastVGGT"))
+    from merging.merge import token_merge_bipartite2d
+
+    grid = [0, 0]  # (patch rows, patch cols) of the current forward
+
+    def _hook(mod, args):
+        H, W = args[0].shape[-2:]
+        grid[0], grid[1] = H // mod.patch_size, W // mod.patch_size
+    model.register_forward_pre_hook(_hook)
+
+    def merged_forward(self, x, attn_bias=None, xpos=None):
+        B, N, C = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).transpose(1, 3)
+        q, k, v = [qkv[:, :, i] for i in range(3)]
+        q, k = self.q_norm(q).to(v.dtype), self.k_norm(k).to(v.dtype)
+        if self.rope is not None:
+            q, k = self.rope(q, xpos), self.rope(k, xpos)
+        gen = torch.Generator(device=x.device)
+        gen.manual_seed(33)
+        m, u = token_merge_bipartite2d(x, grid[1], grid[0], 2, 2, int(N * ratio), False, gen,
+                                       enable_protection=True)
+        Bq, Hq, Nq, Dq = q.shape
+        flat = lambda t: t.permute(0, 2, 1, 3).reshape(Bq, Nq, Hq * Dq)
+        q, k, v = m(flat(q), mode="mean", extra_tensors=flat(k), extra_tensors_2=flat(v))
+        Nm = q.shape[1]
+        q, k, v = [t.reshape(Bq, Nm, Hq, Dq).permute(0, 2, 1, 3) for t in (q, k, v)]
+        with sdpa_kernel([SDPBackend.MATH, SDPBackend.EFFICIENT_ATTENTION]):  # pi3's fp16 path
+            x = F.scaled_dot_product_attention(q, k, v)
+        x = self.proj_drop(self.proj(x.transpose(1, 2).reshape(B, Nm, C)))
+        return u(x)
+
+    n = 0
+    for i, blk in enumerate(model.decoder):
+        if i % 2 == 1 and i // 2 >= start:  # odd decoder blocks attend across frames
+            blk.attn.forward = types.MethodType(merged_forward, blk.attn)
+            n += 1
     return n
 
 
@@ -678,6 +731,8 @@ def main():
     if any(a.split("=")[0] in ("--merging", "--merge_ratio") for a in sys.argv[1:]) and args.model not in (
             "fastvggt", "fastvggt_chunk"):
         raise SystemExit(f"--merging/--merge_ratio have no effect on --model {args.model} (use fastvggt[_chunk])")
+    if os.environ.get("CAP_MERGE", "") != "" and args.model not in ("pi3", "pi3_chunk"):
+        raise SystemExit(f"CAP_MERGE is only implemented for --model pi3/pi3_chunk (VGGT family: fastvggt[_chunk])")
     torch.manual_seed(33)
 
     dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
