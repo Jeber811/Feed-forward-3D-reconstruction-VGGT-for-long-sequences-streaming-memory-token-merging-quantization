@@ -784,7 +784,7 @@ def main():
     args = ap.parse_args()
     # An option the model does not implement is an error, never silently ignored (it would mislabel the run as Q/M).
     if os.environ.get("CAP_WEIGHTS", "fp16") != "fp16" and args.model not in (
-            "vggt_star", "fastvggt", "vggt_chunk", "fastvggt_chunk", "pi3", "pi3_chunk"):
+            "vggt_star", "fastvggt", "vggt_chunk", "fastvggt_chunk", "pi3", "pi3_chunk", "infinitevggt"):
         raise SystemExit(f"CAP_WEIGHTS={os.environ['CAP_WEIGHTS']} is not implemented for --model {args.model}")
     if any(a.split("=")[0] in ("--merging", "--merge_ratio") for a in sys.argv[1:]) and args.model not in (
             "fastvggt", "fastvggt_chunk"):
