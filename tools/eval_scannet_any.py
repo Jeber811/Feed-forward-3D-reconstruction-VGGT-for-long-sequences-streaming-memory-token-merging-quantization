@@ -11,6 +11,7 @@ Models (--model):
   cut3r_offload same computation, per-frame outputs moved to CPU, no state history (bounded GPU memory)
   spann3r       official Spann3R (bounded spatial memory), 224x224 centre crop, PnP-RANSAC poses as in its demo
   streamvggt  StreamVGGT (causal attention + KV cache)
+  infinitevggt InfiniteVGGT (StreamVGGT weights + rolling KV memory, fixed budget CAP_INFV_BUDGET; bounded, CPU inputs)
 Q for the VGGT*/FastVGGT models (incl. *_chunk): env CAP_WEIGHTS=int8 -> weight-only int8 aggregator linears
 (default fp16 = unchanged).
 
@@ -415,6 +416,60 @@ class Pi3KFInterpWrapper(Pi3Wrapper):
         return {"pose_enc": pose_enc.to(dev), "depth": depth[None, ..., None].to(dev), "depth_conf": cfull[None].to(dev)}
 
 
+class InfiniteVGGTWrapper(torch.nn.Module, _NoPatchMixin):
+    """InfiniteVGGT (arXiv 2601.02281): StreamVGGT weights + a training-free rolling KV memory with a fixed token budget.
+    Official inference loop (StreamVGGT.inference), unchanged: one frame at a time, each frame's outputs are handed to a
+    frame writer on the CPU (cache_results=False), so GPU memory is bounded by the KV budget, not by S. Frames are moved
+    to the GPU one at a time (CAP_CPU_INPUTS=1). fp32 weights + autocast, as in the official run_inference.py.
+    CAP_INFV_BUDGET = KV token budget (released default 1,200,000). CAP_WEIGHTS=int8 -> Q on the aggregator linears."""
+
+    COMMIT = "7f9a5a26c2e2f9603151d1dcc61fd402ef3f6a27"  # the shared checkout must be exactly this, without local changes
+
+    def __init__(self, ckpt):
+        super().__init__()
+        import subprocess
+
+        repo = TP / "InfiniteVGGT"
+        git = ["git", "-c", "safe.directory=*", "-C", str(repo)]
+        head = subprocess.run(git + ["rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        dirty = subprocess.run(git + ["status", "--porcelain", "--untracked-files=no"], capture_output=True,
+                               text=True).stdout.strip()
+        assert head == self.COMMIT and not dirty, f"InfiniteVGGT checkout {head} dirty={bool(dirty)} != {self.COMMIT}"
+        sys.path.append(str(repo / "src"))  # appended: vggt.* keeps resolving to FastVGGT's copy (already imported)
+        from streamvggt.models.streamvggt import StreamVGGT
+
+        src = sys.modules[StreamVGGT.__module__].__file__
+        assert str(repo) in src, src
+        self.budget = int(os.environ.get("CAP_INFV_BUDGET", "1200000"))
+        self.model = StreamVGGT(total_budget=self.budget)
+        sd = torch.load(ckpt, map_location="cpu")
+        self.model.load_state_dict(sd, strict=True)
+        del sd
+        weights = os.environ.get("CAP_WEIGHTS", "fp16")  # "fp16" = as released (fp32 weights + autocast)
+        if weights == "int8":
+            print(f"[Q] {int8_weights_(self.model.aggregator)} aggregator linears -> int8 weight-only", flush=True)
+        elif weights != "fp16":
+            raise ValueError(f"CAP_WEIGHTS must be fp16|int8, got {weights}")
+        self.model = self.model.cuda().eval()
+        print(f"[infinitevggt] {src} commit {head[:7]} budget={self.budget} weights={weights}", flush=True)
+
+    @torch.no_grad()
+    def forward(self, images, image_paths=None):
+        dev = torch.device("cuda")
+        poses, depths, confs = [], [], []
+
+        def writer(i, frame, res_cpu):
+            poses.append(res_cpu["camera_pose"].squeeze(0))
+            depths.append(res_cpu["depth"].squeeze(0))
+            confs.append(res_cpu["depth_conf"].squeeze(0))
+
+        frames = ({"img": images[i : i + 1].to(dev).float()} for i in range(images.shape[0]))
+        self.model.inference(frames, frame_writer=writer, cache_results=False)
+        out = images.device  # CPU when CAP_CPU_INPUTS=1
+        return {"pose_enc": torch.stack(poses)[None].to(out), "depth": torch.stack(depths)[None].to(out),
+                "depth_conf": torch.stack(confs)[None].to(out)}
+
+
 class CUT3RWrapper(torch.nn.Module, _NoPatchMixin):
     """CUT3R at its native 512x384, run frame by frame (forward_recurrent), outputs resized back."""
 
@@ -635,7 +690,8 @@ def recon_metrics(c2w_est, c2w_gt, pts, gt_pts, n_sample=200_000, seed=33):
 
 
 # Models whose wrappers move their own frames to the GPU (inputs may stay in host RAM, CAP_CPU_INPUTS=1).
-CPU_INPUT_MODELS = ("pi3_chunk", "vggt_chunk", "fastvggt_chunk", "pi3_kfinterp", "cut3r_offload", "ttt3r_offload")
+CPU_INPUT_MODELS = ("pi3_chunk", "vggt_chunk", "fastvggt_chunk", "pi3_kfinterp", "cut3r_offload", "ttt3r_offload",
+                    "infinitevggt")
 
 
 def infer_cpu_inputs(model, vgg_input, dtype, depth_conf_thresh):
@@ -699,6 +755,8 @@ def build_model(args, dtype):
         from eval_scannet_streamvggt import StreamVGGTWrapper
 
         return StreamVGGTWrapper(args.ckpt_path)
+    if args.model == "infinitevggt":
+        return InfiniteVGGTWrapper(args.ckpt_path)
     raise ValueError(args.model)
 
 
@@ -707,7 +765,7 @@ def main():
     ap.add_argument("--model", required=True,
                     choices=["vggt_star", "fastvggt", "vggt_orig", "pi3", "pi3_chunk", "pi3_kfinterp", "vggt_chunk",
                              "fastvggt_chunk", "ttt3r_offload",
-                             "cut3r", "cut3r_offload", "streamvggt", "spann3r"])
+                             "cut3r", "cut3r_offload", "streamvggt", "infinitevggt", "spann3r"])
     ap.add_argument("--ckpt_path", required=True)
     ap.add_argument("--data_dir", type=Path, required=True)
     ap.add_argument("--gt_ply_dir", type=Path, default=Path("/squash/scannetv2/scans"))
