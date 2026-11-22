@@ -1,0 +1,6 @@
+{"protocol": "0.4", "git_commit": "73dea97", "user": "ja396977",
+ "job": "412076", "host": "c3-6", "gpu": "Quadro RTX 6000, 24576 MiB", "conda_env": "/home/ja396977/.conda/envs/cap6411_env", "tier": "rtx6000",
+ "model": "infinitevggt", "name": "jake_v04_b3_grid_infv_bud600k_q", "lengths": "500", "scenes": "scene0000_00 scene0010_00 scene0013_02 scene0029_01 scene0042_02 scene0056_00 scene0071_00 scene0084_01 scene0096_00 scene0109_00", "extra_env": "CAP_INFV_BUDGET=600000 CAP_WEIGHTS=int8",
+ "harness_args": "", "CAP_DTYPE": "float16", "CAP_CPU_INPUTS": "1",
+ "CH_MEMORDER": "recent_first", "CH_ALIGN": "svd", "site": "crcv", "CAP_MEM_CAP_GB": "",
+ "date": "2026-11-19T14:03:26-05:00"}
