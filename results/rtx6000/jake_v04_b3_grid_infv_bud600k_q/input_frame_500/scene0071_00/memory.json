@@ -1,0 +1,17 @@
+{
+  "scene": "scene0071_00",
+  "model": "infinitevggt",
+  "gpu": "Quadro RTX 6000",
+  "dtype": "torch.float16",
+  "num_frames": 500,
+  "model_weights_gb": 2.175,
+  "inputs_on": "cpu",
+  "status": "ok",
+  "peak_allocated_gb": 6.693,
+  "peak_reserved_gb": 8.781,
+  "inference_time_ms": 187304.4,
+  "inference_time_ms_all": [
+    187304.4
+  ],
+  "fps": 2.669
+}

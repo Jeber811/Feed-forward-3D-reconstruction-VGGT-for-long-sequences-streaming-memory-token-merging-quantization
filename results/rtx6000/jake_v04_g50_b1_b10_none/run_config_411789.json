@@ -1,0 +1,6 @@
+{"protocol": "0.4", "git_commit": "d4d6549", "user": "ja396977",
+ "job": "411789", "host": "c3-7", "gpu": "Quadro RTX 6000, 24576 MiB", "conda_env": "/home/ja396977/.conda/envs/cap6411_env", "tier": "rtx6000",
+ "model": "pi3_chunk", "name": "jake_v04_g50_b1_b10_none", "lengths": "500", "scenes": "scene0280_00 scene0294_02 scene0309_00 scene0325_01 scene0340_01 scene0353_02 scene0367_01 scene0380_02 scene0395_00 scene0409_01", "extra_env": "CH_SIZE=110 CH_OVERLAP=28 CH_KF=0",
+ "harness_args": "", "CAP_DTYPE": "float16", "CAP_CPU_INPUTS": "1",
+ "CH_MEMORDER": "recent_first", "CH_ALIGN": "svd", "site": "crcv", "CAP_MEM_CAP_GB": "",
+ "date": "2026-11-19T04:00:50-05:00"}
